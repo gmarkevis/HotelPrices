@@ -1,0 +1,68 @@
+﻿@model IEnumerable<HotelQuarto>
+<style>
+    .table > thead {
+        text-align: center;
+    }
+
+    #error {
+        text-align: center;
+        background-color: #ff99003b;
+        border-radius: 5px;
+    }
+
+    ul {
+        list-style-type: none;
+    }
+
+    li {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: 15px;
+    }
+</style>
+
+@if (Model.Count() > 0)
+{
+    <table class="table table-bordered rounded">
+        <thead>
+            <tr>
+                <th>Quarto</th>
+                <th>Número de Adultos</th>
+                <th>Condição</th>
+                <th>Valor Médio</th>
+                <th>Valor Total</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @{ int rowSpan = 1; }
+            @foreach (var quarto in Model)
+            {
+                { rowSpan = quarto.Tarifas.Count + 1; }
+                <tr>
+                    <td rowspan="@rowSpan">
+                        @Html.DisplayFor(modelItem => quarto.Nome)
+                    </td>
+                    <td rowspan="@rowSpan">
+                        @Html.DisplayFor(modelItem => quarto.NumeroAdultos)
+                    </td>
+                </tr>
+
+                @foreach (var tarifa in quarto.Tarifas)
+                {
+                    <tr>
+                        <td>@Html.Raw(tarifa.Condicao)</td>
+                        <td>@tarifa.ValorMedio</td>
+                        <td>@tarifa.ValorTotal</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div id="error">
+        <span>@Html.ValidationSummary()</span>
+    </div>
+}
