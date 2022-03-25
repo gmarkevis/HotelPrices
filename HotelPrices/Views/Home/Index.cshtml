@@ -1,0 +1,123 @@
+﻿@{
+    ViewData["Title"] = "Consulta de Quartos";
+}
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<style>
+    .container {
+        padding: 15px;
+    }
+
+    #form_consulta {
+        background-color: #f4ebd0bd;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .btn {
+        background-color: #603601;
+        color: #ffffff;
+        border: none;
+        width: 70%;
+    }
+
+    #pesquisar {
+        text-align: center;
+        vertical-align: top;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #check_in, #check_out, #numero_adultos {
+        color: #603601;
+    }
+
+    #quartos {
+        margin-top: 30px;
+    }
+
+    #loading {
+        text-align: center;
+        padding-top: 35px;
+    }
+
+    .spinner-border{
+        margin-bottom: 5px;
+    }
+</style>
+
+<div class="container" id="form_consulta">
+    <div class="row">
+        <div id="check_in" class="col-sm">
+            <h5>Check-In</h5>
+            <input id="input_check_in" type="date" />
+        </div>
+        <div id="check_out" class="col-sm">
+            <h5>Check-Out</h5>
+            <input id="input_check_out" type="date" />
+        </div>
+        <div id="numero_adultos" class="col-sm">
+            <h5>Número de Adultos</h5>
+            <input id="input_numero_adultos" type="number" value="1" size="3px" min="1" max="2" />
+        </div>
+        <div class="col-sm" id="pesquisar">
+            <input type="submit" value="PESQUISAR" class="btn" onclick="getQuartos()" />
+        </div>
+    </div>
+</div>
+
+<div id="loading">
+    <div class="spinner-border" role="status"></div><br />
+    <span>Buscando preços. Aguarde um momento por gentileza!</span>
+    @Html.ValidationSummary(false, "", new { @class = "exception" })
+</div>
+
+<div id="quartos"></div>
+
+<script type="text/javascript">
+    $('#loading').hide();
+
+    $('#input_check_out').on('click', function () {
+        var checkIn = $('#input_check_in').val();
+
+        if (checkIn === '')
+            alert('Insira a data de Check-In antes da data de Check-Out');
+    });
+
+    $('#input_check_in').on('change', function () {
+        var checkIn = new Date($('#input_check_in').val());
+        checkIn.setDate(checkIn.getDate() + 2)
+
+        var checkOutMax = new Date(checkIn);
+        checkOutMax.setDate(checkOutMax.getDate() + 6);
+
+        $('#input_check_out').attr(
+            {
+                'min': checkIn.getFullYear() + '-' + ('0' + (checkIn.getMonth() + 1)).slice(-2) + '-' + ('0' + checkIn.getDate()).slice(-2),
+                'max': checkOutMax.getFullYear() + '-' + ('0' + (checkOutMax.getMonth() + 1)).slice(-2) + '-' + ('0' + checkOutMax.getDate()).slice(-2)
+            }
+        );
+    });
+
+    function getQuartos() {
+        $.ajax({
+            data: {
+                checkIn: $('#input_check_in').val(),
+                checkOut: $('#input_check_out').val(),
+                numeroAdultos: $('#input_numero_adultos').val()
+            },
+            url: '@Url.Action("GetQuartos", "Home")',
+            beforeSend: function () {
+                $('#quartos').hide();
+                $('#loading').show();
+            },
+            success: function (dataHtml) {
+                $('#loading').hide();
+                $("#quartos").html(dataHtml);
+                $('#quartos').show();
+            }
+        });
+    }
+</script>
+
